@@ -1,7 +1,7 @@
 package cn.leafw.easycode.service;
 
 import cn.leafw.easycode.model.Column;
-import cn.leafw.easycode.model.DomainTemplate;
+import cn.leafw.easycode.model.DomainMapperTemplate;
 import cn.leafw.easycode.utils.Database2JavaPropUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -64,10 +64,15 @@ public class DatabaseService {
         return columns;
     }
 
-    private String domainContentGenerator(DomainTemplate domainTemplate){
+    /**
+     * 实体文件内容
+     * @param domainMapperTemplate domainTemplate
+     * @return content
+     */
+    private String domainContentGenerator(DomainMapperTemplate domainMapperTemplate){
         StringBuilder content = new StringBuilder();
         // 第一行一定是包, 空两行好看点
-        content.append("package ").append(domainTemplate.getPackageName()).append("\r\n").append("\r\n");
+        content.append("package ").append(domainMapperTemplate.getPackageName()).append("\r\n").append("\r\n");
 
         // 后面是一大坨包的引入, @id, @data, @table, @generateValue是一定有的
         StringBuilder importContent = new StringBuilder();
@@ -87,19 +92,19 @@ public class DatabaseService {
                 " * @date %s \r\n" +
                 " */" +
                 "\r\n";
-        String classComment = String.format(classCommentTemplate, domainTemplate.getTableDesc(), domainTemplate.getAuthor(), domainTemplate.getCreateTime());
+        String classComment = String.format(classCommentTemplate, domainMapperTemplate.getTableDesc(), domainMapperTemplate.getAuthor(), domainMapperTemplate.getCreateTime());
 
         // 类注解
         String classAnnotationTemplate = "@Table(name=\"{table_name}\")\r\n" +
                 "@Data\r\n";
-        String classAnnotation = String.format(classAnnotationTemplate, domainTemplate.getTableName());
+        String classAnnotation = String.format(classAnnotationTemplate, domainMapperTemplate.getTableName());
 
         //public class 类名 {
-        String classFirstStatement = "public class " + Database2JavaPropUtil.tableName2JavaName(domainTemplate.getTableName()) + " { \r\n";
+        String classFirstStatement = "public class " + Database2JavaPropUtil.tableName2JavaName(domainMapperTemplate.getTableName()) + " { \r\n";
 
         // 所有的column
         StringBuilder columnsContent = new StringBuilder();
-        for (Column column : domainTemplate.getColumns()) {
+        for (Column column : domainMapperTemplate.getColumns()) {
             StringBuilder columnContent = new StringBuilder();
             String type = Database2JavaPropUtil.columnTransfer(column.getDatabaseColumnType());
             String javaName = Database2JavaPropUtil.databaseColumnName2JavaName(column.getDatabaseColumnName());
@@ -134,19 +139,64 @@ public class DatabaseService {
         return content.toString();
     }
 
-    public void writeDomain(DomainTemplate domainTemplate) throws Exception{
+    /**
+     * 写DO文件
+     * @param domainMapperTemplate domainMapperTemplate
+     */
+    public void writeDomain(DomainMapperTemplate domainMapperTemplate) throws Exception{
         File domainFile = new File("/Users/carey/Desktop/test/test.java");
         if(!domainFile.exists()){
-            boolean newFile = domainFile.createNewFile();
-            if(!newFile){
-                System.out.println("--");
-            }
+            domainFile.createNewFile();
         }
         FileWriter fw = new FileWriter(domainFile.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
-        String content = domainContentGenerator(domainTemplate);
+        String content = domainContentGenerator(domainMapperTemplate);
         bw.write(content);
         bw.close();
+    }
+
+    private String mapperContentGenerator(DomainMapperTemplate domainMapperTemplate){
+        StringBuilder content = new StringBuilder();
+        // 第一行一定是包, 空两行好看点
+        content.append("package ").append(domainMapperTemplate.getPackageName()).append("\r\n").append("\r\n");
+        // 包一定会有BaseMapper和实体的包位置
+        content.append("import tk.mybatis.mapper.common.BaseMapper;\r\n" + "import ").append(domainMapperTemplate.getDomainPackagePosition()).append("\r\n");
+
+        // 类注释
+        String classCommentTemplate ="/**\r\n" +
+                " *\r\n" +
+                " * @author {author}\r\n" +
+                " * @date {now}\r\n" +
+                " */\r\n";
+        String classComment = String.format(classCommentTemplate, domainMapperTemplate.getAuthor(), domainMapperTemplate.getCreateTime());
+        content.append(classComment);
+
+        // public interface ...
+        String classFirstStatement = "public interface " + Database2JavaPropUtil.tableName2JavaName(domainMapperTemplate.getTableName()) + "Mapper extends BaseMapper<"
+                + Database2JavaPropUtil.tableName2JavaName(domainMapperTemplate.getTableName()) + "> {\r\n";
+        content.append(classFirstStatement);
+        content.append("}");
+        return content.toString();
+    }
+
+    /**
+     * 写mapper文件
+     * @param domainMapperTemplate domainMapperTemplate
+     */
+    public void writeMapper(DomainMapperTemplate domainMapperTemplate) throws Exception{
+        File domainFile = new File("/Users/carey/Desktop/test/mapper.java");
+        if(!domainFile.exists()){
+            domainFile.createNewFile();
+        }
+        FileWriter fw = new FileWriter(domainFile.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        String content = mapperContentGenerator(domainMapperTemplate);
+        bw.write(content);
+        bw.close();
+    }
+
+    public void writeService(){
+
     }
 
 //    public void test(){

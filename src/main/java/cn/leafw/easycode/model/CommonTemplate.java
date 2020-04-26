@@ -11,11 +11,11 @@ import lombok.Data;
 @Data
 public class CommonTemplate {
 
+    /** 包名*/
+    private String packageName;
     /** 作者*/
     private String author;
     /** 创建时间*/
     private String createTime;
-    /** 类名*/
-    private String className;
 }
 
