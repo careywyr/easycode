@@ -24,16 +24,28 @@ public class GenerateController {
         databaseService.getColumns("user");
     }
 
+    /**
+     * 获取所有表
+     */
     @GetMapping("/tables")
     public List<String> getAllTables(){
         return databaseService.getAllTables();
     }
 
+    /**
+     * 获取对应表的所有字段
+     * @param tableName
+     * @return
+     */
     @GetMapping("/columns")
     public List<Column> getAllColumn(@RequestParam("tableName") String tableName){
         return databaseService.getColumns(tableName);
     }
 
+    /**
+     * 生成实体
+     * @param domainMapperTemplate domainMapperTemplate
+     */
     @PostMapping("/domain")
     public void generateDomain(@RequestBody DomainMapperTemplate domainMapperTemplate){
         try {
@@ -43,6 +55,10 @@ public class GenerateController {
         }
     }
 
+    /**
+     * 生成mapper.java
+     * @param domainMapperTemplate domainMapperTemplate
+     */
     @PostMapping("/mapper")
     public void generateMapper(@RequestBody DomainMapperTemplate domainMapperTemplate){
         try {

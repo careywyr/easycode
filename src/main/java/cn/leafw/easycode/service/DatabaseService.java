@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO
+ * 数据库操作服务
  *
  * @author <a href="mailto:wyr95626@95626.cn">CareyWYR</a>
  * @date 2020/4/22
@@ -199,14 +199,5 @@ public class DatabaseService {
 
     }
 
-//    public void test(){
-//        List<Map<String, Object>> maps = jdbcTemplate.queryForList("show full columns from user");
-//        for (Map<String, Object> map : maps) {
-//            for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
-//                System.out.println(stringObjectEntry.getKey());
-//                System.out.println();
-//            }
-//        }
-//    }
 }
 
